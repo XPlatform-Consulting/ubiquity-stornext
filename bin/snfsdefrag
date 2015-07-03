@@ -1,0 +1,52 @@
+#!/usr/bin/env ruby
+lib_path = File.expand_path('../../lib', __FILE__)
+$:.unshift(lib_path) unless $:.include?(lib_path) or !File.exists?(lib_path)
+
+require 'rubygems'
+# require 'json'
+require 'optparse'
+require 'pp'
+require 'logger'
+require 'shellwords'
+
+require 'ubiquity/stornext/snfsdefrag'
+
+@args = {
+  :recursive => false,
+  :verbose => true
+}
+def args; @args end
+
+op = OptionParser.new
+op.on('-l', '--list-candidates', '') { |v| args[:list_candidates] = v }
+op.on('-r', '--[no-]recursive', 'This option instructs snfsdefrag to recurse through the Target Directory', "\tdefault: #{args[:recursive]}") { |v| args[:recursive] = v }
+op.on('-v', '--[no-]verbose', '', "\tdefault: #{args[:verbose]}") { |v| args[:verbose] = v }
+op.on('-h', '--help', 'Show this message') { puts op; exit }
+op.parse!(ARGV)
+
+@paths = ARGV.dup
+def paths; @paths end
+
+@logger = args[:logger] ? args[:logger].dup : Logger.new(args[:log_to] || STDOUT)
+def logger; @logger end
+
+logger.level = args[:log_level] if args[:log_level]
+
+@defragger = Ubiquity::StorNext::SNFSDefrag.new
+def defragger; @defragger end
+
+
+def list_candidates(paths)
+  logger.debug { "Paths: #{paths.inspect}" }
+  defrag_candidates = [ ]
+
+  [*paths].each do |path|
+    _path = File.expand_path(path)
+    #defragger.execute(['-lr', _path])
+    defrag_candidates = defrag_candidates + defragger.list_candidates(_path, args)
+  end
+
+  defrag_candidates
+end
+
+pp list_candidates(paths) if args[:list_candidates]
