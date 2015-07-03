@@ -4,9 +4,9 @@ $:.unshift(lib_path) unless $:.include?(lib_path) or !File.exists?(lib_path)
 
 require 'rubygems'
 # require 'json'
+require 'logger'
 require 'optparse'
 require 'pp'
-require 'logger'
 require 'shellwords'
 
 require 'ubiquity/stornext/snfsdefrag'
