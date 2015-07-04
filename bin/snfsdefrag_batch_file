@@ -60,11 +60,12 @@ begin
     logger.debug { "Executing: '#{command}'" }
     `#{command}`
     logger.debug { "Result: #{$?.inspect}" }
-    processed_file_path = file_paths_to_defrag.shift
+
     unless $?.success?
-      logger.warn { "Execution Failed. Adding File Path '#{processed_file_path}' to end of list" }
-      file_paths_to_defrag.push(processed_file_path)
+      file_paths_to_defrag.push(processed_file_path = file_paths_to_defrag.shift)
+      logger.warn { "Execution Failed. Added File Path '#{processed_file_path}' to end of list" }
     else
+      processed_file_path = file_paths_to_defrag.shift
       logger.info { "Execution Successful. Removed File Path '#{processed_file_path}' from list" }
     end
   end
