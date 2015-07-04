@@ -14,11 +14,11 @@ def is_weekday?
   Time.now.wday.between?(1,5)
 end
 def seconds_until_sod
-  Time.parse(Time.now.strftime('%d/%m/%Y 08:00:00 %z')).to_i - Time.now.to_i
+  Time.parse(Time.now.strftime('%m/%d/%Y 08:00:00 %z')).to_i - Time.now.to_i
 end
 
 def seconds_until_eod
-  Time.parse(Time.now.strftime('%d/%m/%Y 17:00:00 %z')).to_i - Time.now.to_i
+  Time.parse(Time.now.strftime('%m/%d/%Y 17:00:00 %z')).to_i - Time.now.to_i
 end
 
 file_paths_to_defrag = nil
