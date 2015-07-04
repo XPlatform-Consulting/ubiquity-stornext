@@ -23,7 +23,7 @@ end
 
 file_paths_to_defrag = nil
 begin
-  File.open(file_paths_to_defrag_file_path, 'r') { |f| file_paths_to_defrag = f.lines.to_a.compact }
+  File.open(file_paths_to_defrag_file_path, 'r') { |f| file_paths_to_defrag = f.lines.to_a.map { |v| _v = v.chomp; _v.empty? ? nil : _v }.compact }
   total_file_paths = file_paths_to_defrag.length
   logger.debug { "Total File Paths to Defrag: #{total_file_paths}"}
   file_path_counter = 0
