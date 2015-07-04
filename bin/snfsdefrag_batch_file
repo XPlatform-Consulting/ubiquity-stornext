@@ -41,15 +41,14 @@ begin
     if is_weekday?
       logger.debug { 'Today is a workday.' }
       if seconds_until_sod < 0
-        logger.debug { "It is #{seconds_until_sod} seconds after the start of workday." }
+        logger.debug { "It is #{seconds_until_sod * -1} seconds after the start of workday." }
         seconds_to_sleep = seconds_until_eod
-        logger.debug { "Today is a workday. #{seconds_to_sleep} seconds till eod" }
         if seconds_to_sleep > 0
           logger.debug { "It is #{seconds_until_eod} seconds until the end of the workday." }
           logger.debug { "Sleeping for #{seconds_to_sleep} seconds." }
           sleep(seconds_to_sleep)
         else
-          logger.debug { "It is #{seconds_until_eod} seconds after the end of the workday." }
+          logger.debug { "It is #{seconds_until_eod * -1} seconds after the end of the workday." }
         end
       else
         logger.debug { "It is #{seconds_until_sod} seconds until the start of day." }
