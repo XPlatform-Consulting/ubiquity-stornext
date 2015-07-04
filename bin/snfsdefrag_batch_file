@@ -42,7 +42,7 @@ begin
         sleep(seconds_to_sleep)
       end
     end
-    `/usr/cvfs/bin/snfdefrag "#{file_path_to_defrag}"`
+    `/usr/cvfs/bin/snfsdefrag "#{file_path_to_defrag}"`
 
     processed_file_path = file_paths_to_defrag.shift
     file_paths_to_defrag.push(processed_file_path) unless $?.success?
