@@ -13,8 +13,11 @@ logger.level = Logger::DEBUG
 def is_weekday?
   Time.now.wday.between?(1,5)
 end
+def seconds_until_sod
+  Time.parse(Time.now.strftime('%d/%m/%Y 08:00:00 %z')).to_i - Time.now.to_i
+end
 
-def seconds_till_eod
+def seconds_until_eod
   Time.parse(Time.now.strftime('%d/%m/%Y 17:00:00 %z')).to_i - Time.now.to_i
 end
 
@@ -36,11 +39,23 @@ begin
     file_path_to_defrag = file_paths_to_defrag.first
     logger.debug { "Processing File Path #{file_path_counter} of #{total_file_paths}: '#{file_path_to_defrag}'" }
     if is_weekday?
-      seconds_to_sleep = seconds_till_eod
-      if seconds_to_sleep > 0
-        logger.debug { "Sleeping for #{seconds_to_sleep} seconds." }
-        sleep(seconds_to_sleep)
+      logger.debug { 'Today is a workday.' }
+      if seconds_until_sod < 0
+        logger.debug { "It is #{seconds_until_sod} seconds after the start of workday." }
+        seconds_to_sleep = seconds_until_eod
+        logger.debug { "Today is a workday. #{seconds_to_sleep} seconds till eod" }
+        if seconds_to_sleep > 0
+          logger.debug { "It is #{seconds_until_eod} seconds until the end of the workday." }
+          logger.debug { "Sleeping for #{seconds_to_sleep} seconds." }
+          sleep(seconds_to_sleep)
+        else
+          logger.debug { "It is #{seconds_until_eod} seconds after the end of the workday." }
+        end
+      else
+        logger.debug { "It is #{seconds_until_sod} seconds until the start of day." }
       end
+    else
+      logger.debug { 'Today is not a workday.' }
     end
     `/usr/cvfs/bin/snfsdefrag "#{file_path_to_defrag}"`
 
