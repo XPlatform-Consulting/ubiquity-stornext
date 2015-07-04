@@ -1,0 +1,56 @@
+#!/usr/bin/env ruby
+require 'logger'
+require 'optparse'
+require 'time'
+
+
+file_paths_to_defrag_file_path = '/root/defrag_candidates'
+
+@logger = Logger.new(STDOUT)
+def logger; @logger end
+logger.level = Logger::DEBUG
+
+def is_weekday?
+  Time.now.wday.between?(1,5)
+end
+
+def seconds_till_eod
+  Time.parse(Time.now.strftime('%d/%m/%Y 17:00:00 %z')).to_i - Time.now.to_i
+end
+
+file_paths_to_defrag = nil
+begin
+  File.open(file_paths_to_defrag_file_path, 'r') { |f| file_paths_to_defrag = f.lines.to_a }
+  total_file_paths = file_paths_to_defrag.length
+  logger.debug { "Total File Paths to Defrag: #{total_file_paths}"}
+  file_path_counter = 0
+  loop do
+    break if file_paths_to_defrag.empty?
+
+    file_path_counter += 1
+    if file_path_counter > total_file_paths
+      logger.debug { 'Reprocessing Failed Files.' }
+      file_path_counter = 1
+      total_file_paths = file_paths_to_defrag.length
+    end
+    file_path_to_defrag = file_paths_to_defrag.first
+    logger.debug { "Processing File Path #{file_path_counter} of #{total_file_paths}: '#{file_path_to_defrag}'" }
+    if is_weekday?
+      seconds_to_sleep = seconds_till_eod
+      if seconds_to_sleep > 0
+        logger.debug { "Sleeping for #{seconds_to_sleep} seconds." }
+        sleep(seconds_to_sleep)
+      end
+    end
+    `/usr/cvfs/bin/snfdefrag "#{file_path_to_defrag}"`
+
+    processed_file_path = file_paths_to_defrag.shift
+    file_paths_to_defrag.push(processed_file_path) unless $?.success?
+  end
+rescue => e
+  logger.error { "Exception: #{e.message}\nBacktrace: #{e.backtrace}" }
+ensure
+  if file_paths_to_defrag
+    File.open(file_paths_to_defrag_file_path, 'w') { |f| f.write(file_paths_to_defrag.join("\n")) } if file_paths_to_defrag_file_path
+  end
+end
