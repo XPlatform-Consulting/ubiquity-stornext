@@ -61,7 +61,12 @@ begin
     `#{command}`
     logger.debug { "Result: #{$?.inspect}" }
     processed_file_path = file_paths_to_defrag.shift
-    file_paths_to_defrag.push(processed_file_path) unless $?.success?
+    unless $?.success?
+      logger.warn { "Execution Failed. Adding File Path '#{processed_file_path}' to end of list" }
+      file_paths_to_defrag.push(processed_file_path)
+    else
+      logger.info { "Execution Successful. Removed File Path '#{processed_file_path}' from list" }
+    end
   end
 rescue => e
   logger.error { "Exception: #{e.message}\nBacktrace: #{e.backtrace}" }
