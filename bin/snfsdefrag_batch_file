@@ -56,8 +56,10 @@ begin
     else
       logger.debug { 'Today is not a workday.' }
     end
-    `/usr/cvfs/bin/snfsdefrag "#{file_path_to_defrag}"`
-
+    command = %(/usr/cvfs/bin/snfsdefrag "#{file_path_to_defrag}")
+    logger.debug { "Executing: '#{command}'" }
+    `#{command}`
+    logger.debug { "Result: #{$?.inspect}" }
     processed_file_path = file_paths_to_defrag.shift
     file_paths_to_defrag.push(processed_file_path) unless $?.success?
   end
