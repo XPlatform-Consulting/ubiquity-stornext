@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 require 'logger'
 require 'optparse'
+require 'shellwords'
 require 'time'
 
 
@@ -56,7 +57,8 @@ begin
     else
       logger.debug { 'Today is not a workday.' }
     end
-    command = %(/usr/cvfs/bin/snfsdefrag "#{file_path_to_defrag}")
+    # command = %(/usr/cvfs/bin/snfsdefrag "#{file_path_to_defrag}")
+    command = [ '/usr/cvfs/bin/snfsdefrag', file_path_to_defrag ].shelljoin
     logger.debug { "Executing: '#{command}'" }
     `#{command}`
     logger.debug { "Result: #{$?.inspect}" }
